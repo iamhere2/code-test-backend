@@ -8,7 +8,7 @@
   the same `IApplicationResult` with quite universal and detailed information about success, errors, and `ApplicationId` (if it's present).
   * Fixed somehow, but should be discussed about initial intents and requirements.
 * `ProductApplicationService.SubmitApplicationFor` returns value of `int`, and it's very non-ideomatic, looks more like from old C. Maybe it was inspired by ugly `ISelectInvoiceService` legacy inteface, but that isn't a good reason to keep it.
-  * Fixed. Our own `ApplicationResult` was added, implementing fairly good `IApplicationResult` interface.
+  * Fixed. Our own `PlainCodeApplicationResult` was added, implementing fairly good `IApplicationResult` interface.
 
 ## Other comments
 * Throwing `InvalidOperationException` without any message leads to difficult production maintenance.

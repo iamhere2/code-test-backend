@@ -27,6 +27,11 @@ namespace SlothEnterprise.ProductApplication
 
         public IApplicationResult SubmitApplicationFor(SellerApplication application)
         {
+            if (application is null)
+            {
+                throw new ArgumentNullException(nameof(application));
+            }
+
             var companyData = MapToCompanyDataRequest(application.CompanyData);
 
             return application.Product switch
@@ -41,17 +46,13 @@ namespace SlothEnterprise.ProductApplication
                        => SubmitRequest(companyData, loans),
 
                    _ => throw new InvalidOperationException(
-                       $"Unknown/unsupported product: {application.Product.GetType().Name}")
+                       $"Unknown/unsupported/null product: {application.Product?.GetType()?.Name ?? "(null)"}")
                };
         }
 
         private IApplicationResult SubmitRequest(CompanyDataRequest companyData, BusinessLoans loans)
         {
-            var loansRequest = new LoansRequest
-            {
-                InterestRatePerAnnum = loans.InterestRatePerAnnum,
-                LoanAmount = loans.LoanAmount
-            };
+            var loansRequest = MapToLoanRequest(loans);
 
             var result = _businessLoansService.SubmitApplicationFor(
                 companyData, loansRequest);
@@ -77,14 +78,26 @@ namespace SlothEnterprise.ProductApplication
             return new PlainCodeApplicationResult(code);
         }
 
+        #region Data mapping
+
+        // TODO: Consider using AutoMapper
+
         private static CompanyDataRequest MapToCompanyDataRequest(SellerCompanyData companyData)
             => new CompanyDataRequest
             {
-                // TODO: Consider using AutoMapper
                 CompanyFounded = companyData.Founded,
                 CompanyNumber = companyData.Number,
                 CompanyName = companyData.Name,
                 DirectorName = companyData.DirectorName
             };
+
+        private static LoansRequest MapToLoanRequest(BusinessLoans loans)
+            => new LoansRequest
+            {
+                InterestRatePerAnnum = loans.InterestRatePerAnnum,
+                LoanAmount = loans.LoanAmount
+            };
+
+        #endregion
     }
 }
