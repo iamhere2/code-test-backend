@@ -4,7 +4,7 @@
 * Return value for `ConfidentialInvoiceDiscount` and `BusinessLoans` was calculated by a very strange (and duplicated) code,
   which messed `ApplicationId` with success flag, in such away, so unsuccessfull application 
   is indifferable (just `-1`) from an absent `ApplicationId`. It looks very strange, looks like an error, 
-  but I'm not sure, what the initial intend was. In my opinion, it's much better to use 
+  but I'm not sure, what the initial intent was. In my opinion, it's much better to use 
   the same `IApplicationResult` with quite universal and detailed information about success, errors, and `ApplicationId` (if it's present).
   * Fixed somehow, but should be discussed about initial intents and requirements.
 * `ProductApplicationService.SubmitApplicationFor` returns value of `int`, and it's very non-ideomatic, looks more like from old C. Maybe it was inspired by ugly `ISelectInvoiceService` legacy inteface, but that isn't a good reason to keep it.
