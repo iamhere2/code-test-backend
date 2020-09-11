@@ -4,11 +4,11 @@ using SlothEnterprise.External;
 
 namespace SlothEnterprise.ProductApplication
 {
-    public class CodedApplicationResult : IApplicationResult
+    public class PlainCodeApplicationResult : IApplicationResult
     {
         private const string ResultIsReadonly = "Result is readonly";
 
-        public CodedApplicationResult(int code)
+        public PlainCodeApplicationResult(int code)
         {
             Code = code;
         }
@@ -20,6 +20,7 @@ namespace SlothEnterprise.ProductApplication
             get => null;
             set => throw new NotSupportedException(ResultIsReadonly);
         }
+        private readonly int? _applicationId;
 
         public bool Success 
         {

@@ -31,7 +31,7 @@ namespace SlothEnterprise.ProductApplication
             {
                 int code = _selectInvoiceService.SubmitApplicationFor(
                     application.CompanyData.Number.ToString(CultureInfo.InvariantCulture), sid.InvoiceAmount, sid.AdvancePercentage);
-                return new CodedApplicationResult(code);
+                return new PlainCodeApplicationResult(code);
             }
 
             if (application.Product is ConfidentialInvoiceDiscount cid)
