@@ -40,7 +40,6 @@ namespace SlothEnterprise.ProductApplication.Tests
                 },
                 Product = new SelectiveInvoiceDiscount
                 {
-                    Id = 456,
                     InvoiceAmount = 123000.456M,
                     AdvancePercentage = 5.67M
                 }

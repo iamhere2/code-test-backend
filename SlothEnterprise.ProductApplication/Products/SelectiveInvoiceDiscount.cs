@@ -2,7 +2,6 @@
 {
     public class SelectiveInvoiceDiscount : IProduct
     {
-        public int Id { get; set; }
         /// <summary>
         /// Proposed networth of the Invoice
         /// </summary>

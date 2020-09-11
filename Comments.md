@@ -23,6 +23,10 @@
   * Fixed.
 * `CompanyDataRequest` composing logic was duplicated.
   * Fixed.
+* It's not clear why `IProduct` interface was declared with `Id`, nobody uses product's `Id`.
+  Actually it is used only as a "union type" for completely different data structures.
+  * Removed.
+
 
 
 

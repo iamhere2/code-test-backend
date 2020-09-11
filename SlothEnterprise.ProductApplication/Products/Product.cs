@@ -2,6 +2,5 @@
 {
     public interface IProduct
     {
-        int Id { get; }
     }
 }
