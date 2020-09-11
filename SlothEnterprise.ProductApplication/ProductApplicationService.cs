@@ -26,40 +26,51 @@ namespace SlothEnterprise.ProductApplication
         }
 
         public IApplicationResult SubmitApplicationFor(SellerApplication application)
+            => application.Product switch
+            {
+                SelectiveInvoiceDiscount sid 
+                    => Submit(application, sid),
+
+                ConfidentialInvoiceDiscount cid 
+                    => Submit(application, cid),
+
+                BusinessLoans loans 
+                    => Submit(application, loans),
+
+                _ => throw new InvalidOperationException(
+                    $"Unknown/unsupported product: {application.Product.GetType().Name}")
+            };
+
+        private IApplicationResult Submit(SellerApplication application, BusinessLoans loans)
         {
-            if (application.Product is SelectiveInvoiceDiscount sid)
+            var companyData = ToCompanyDataRequest(application.CompanyData);
+            var loansRequest = new LoansRequest
             {
-                int code = _selectInvoiceService.SubmitApplicationFor(
-                    application.CompanyData.Number.ToString(CultureInfo.InvariantCulture), sid.InvoiceAmount, sid.AdvancePercentage);
-                return new PlainCodeApplicationResult(code);
-            }
+                InterestRatePerAnnum = loans.InterestRatePerAnnum,
+                LoanAmount = loans.LoanAmount
+            };
 
-            if (application.Product is ConfidentialInvoiceDiscount cid)
-            {
-                var companyData = ToCompanyDataRequest(application.CompanyData);
+            var result = _businessLoansService.SubmitApplicationFor(
+                companyData, loansRequest);
 
-                var result = _confidentialInvoiceWebService.SubmitApplicationFor(
-                    companyData, cid.TotalLedgerNetworth, cid.AdvancePercentage, cid.VatRate);
+            return result;
+        }
 
-                return result;
-            }
+        private IApplicationResult Submit(SellerApplication application, ConfidentialInvoiceDiscount cid)
+        {
+            var companyData = ToCompanyDataRequest(application.CompanyData);
 
-            if (application.Product is BusinessLoans loans)
-            {
-                var companyData = ToCompanyDataRequest(application.CompanyData);
-                var loansRequest = new LoansRequest
-                {
-                    InterestRatePerAnnum = loans.InterestRatePerAnnum,
-                    LoanAmount = loans.LoanAmount
-                };
+            var result = _confidentialInvoiceWebService.SubmitApplicationFor(
+                companyData, cid.TotalLedgerNetworth, cid.AdvancePercentage, cid.VatRate);
 
-                var result = _businessLoansService.SubmitApplicationFor(
-                    companyData, loansRequest);
+            return result;
+        }
 
-                return result;
-            }
-
-            throw new InvalidOperationException($"Unknown/unsupported product: {application.Product}");
+        private IApplicationResult Submit(SellerApplication application, SelectiveInvoiceDiscount sid)
+        {
+            int code = _selectInvoiceService.SubmitApplicationFor(
+                                application.CompanyData.Number.ToString(CultureInfo.InvariantCulture), sid.InvoiceAmount, sid.AdvancePercentage);
+            return new PlainCodeApplicationResult(code);
         }
 
         private static CompanyDataRequest ToCompanyDataRequest(SellerCompanyData companyData)

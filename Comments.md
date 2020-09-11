@@ -30,6 +30,8 @@
   These interfaces are not used now neither in code, nor in tests.
   At the moment it's just a useless boilerplate code.
   * Removed.
+* Single large dispatching/adapting method was too complex and had a tend to enlarge even more in the future
+  * Fixed. Dispatching logic was separated from adapting logic. At the same time, IMHO, it's too early to separate that simple logic into different classes.
 
 
 

@@ -20,7 +20,6 @@ namespace SlothEnterprise.ProductApplication
             get => null;
             set => throw new NotSupportedException(ResultIsReadonly);
         }
-        private readonly int? _applicationId;
 
         public bool Success 
         {
