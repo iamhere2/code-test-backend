@@ -26,6 +26,10 @@
 * It's not clear why `IProduct` interface was declared with `Id`, nobody uses product's `Id`.
   Actually it is used only as a "union type" for completely different data structures.
   * Removed.
+* It's not clear why a lot of interfaces declared (`ISellerApplication`, `ISellerCompanyData`, etc) for simple data structures (DTO). 
+  These interfaces are not used now neither in code, nor in tests.
+  At the moment it's just a useless boilerplate code.
+  * Removed.
 
 
 

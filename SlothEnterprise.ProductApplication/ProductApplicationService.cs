@@ -25,7 +25,7 @@ namespace SlothEnterprise.ProductApplication
                 ?? throw new ArgumentNullException(nameof(businessLoansService));
         }
 
-        public IApplicationResult SubmitApplicationFor(ISellerApplication application)
+        public IApplicationResult SubmitApplicationFor(SellerApplication application)
         {
             if (application.Product is SelectiveInvoiceDiscount sid)
             {
@@ -62,7 +62,7 @@ namespace SlothEnterprise.ProductApplication
             throw new InvalidOperationException($"Unknown/unsupported product: {application.Product}");
         }
 
-        private static CompanyDataRequest ToCompanyDataRequest(ISellerCompanyData companyData)
+        private static CompanyDataRequest ToCompanyDataRequest(SellerCompanyData companyData)
             => new CompanyDataRequest
             {
                 CompanyFounded = companyData.Founded,
