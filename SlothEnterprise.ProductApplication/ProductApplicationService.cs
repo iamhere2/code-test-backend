@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using SlothEnterprise.External;
 using SlothEnterprise.External.V1;
 using SlothEnterprise.ProductApplication.Applications;
@@ -14,50 +15,60 @@ namespace SlothEnterprise.ProductApplication
 
         public ProductApplicationService(ISelectInvoiceService selectInvoiceService, IConfidentialInvoiceService confidentialInvoiceWebService, IBusinessLoansService businessLoansService)
         {
-            _selectInvoiceService = selectInvoiceService;
-            _confidentialInvoiceWebService = confidentialInvoiceWebService;
-            _businessLoansService = businessLoansService;
+            _selectInvoiceService = selectInvoiceService 
+                ?? throw new ArgumentNullException(nameof(selectInvoiceService));
+
+            _confidentialInvoiceWebService = confidentialInvoiceWebService 
+                ?? throw new ArgumentNullException(nameof(confidentialInvoiceWebService));
+
+            _businessLoansService = businessLoansService 
+                ?? throw new ArgumentNullException(nameof(businessLoansService));
         }
 
-        public int SubmitApplicationFor(ISellerApplication application)
+        public IApplicationResult SubmitApplicationFor(ISellerApplication application)
         {
-
             if (application.Product is SelectiveInvoiceDiscount sid)
             {
-                return _selectInvoiceService.SubmitApplicationFor(application.CompanyData.Number.ToString(), sid.InvoiceAmount, sid.AdvancePercentage);
+                int code = _selectInvoiceService.SubmitApplicationFor(
+                    application.CompanyData.Number.ToString(CultureInfo.InvariantCulture), sid.InvoiceAmount, sid.AdvancePercentage);
+                return new CodedApplicationResult(code);
             }
 
             if (application.Product is ConfidentialInvoiceDiscount cid)
             {
-                var result = _confidentialInvoiceWebService.SubmitApplicationFor(
-                    new CompanyDataRequest
-                    {
-                        CompanyFounded = application.CompanyData.Founded,
-                        CompanyNumber = application.CompanyData.Number,
-                        CompanyName = application.CompanyData.Name,
-                        DirectorName = application.CompanyData.DirectorName
-                    }, cid.TotalLedgerNetworth, cid.AdvancePercentage, cid.VatRate);
+                var companyData = ToCompanyDataRequest(application.CompanyData);
 
-                return (result.Success) ? result.ApplicationId ?? -1 : -1;
+                var result = _confidentialInvoiceWebService.SubmitApplicationFor(
+                    companyData, cid.TotalLedgerNetworth, cid.AdvancePercentage, cid.VatRate);
+
+                return result;
             }
 
             if (application.Product is BusinessLoans loans)
             {
-                var result = _businessLoansService.SubmitApplicationFor(new CompanyDataRequest
-                {
-                    CompanyFounded = application.CompanyData.Founded,
-                    CompanyNumber = application.CompanyData.Number,
-                    CompanyName = application.CompanyData.Name,
-                    DirectorName = application.CompanyData.DirectorName
-                }, new LoansRequest
+                var companyData = ToCompanyDataRequest(application.CompanyData);
+                var loansRequest = new LoansRequest
                 {
                     InterestRatePerAnnum = loans.InterestRatePerAnnum,
                     LoanAmount = loans.LoanAmount
-                });
-                return (result.Success) ? result.ApplicationId ?? -1 : -1;
+                };
+
+                var result = _businessLoansService.SubmitApplicationFor(
+                    companyData, loansRequest);
+
+                return result;
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"Unknown/unsupported product: {application.Product}");
         }
+
+        private static CompanyDataRequest ToCompanyDataRequest(ISellerCompanyData companyData)
+            => new CompanyDataRequest
+            {
+                CompanyFounded = companyData.Founded,
+                CompanyNumber = companyData.Number,
+                CompanyName = companyData.Name,
+                DirectorName = companyData.DirectorName
+            };
     }
 }
